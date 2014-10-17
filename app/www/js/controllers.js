@@ -6,7 +6,8 @@ angular.module('starter.controllers', ['lunch.services'])
 
   // Create the login modal that we will use later
   $ionicModal.fromTemplateUrl('templates/login.html', {
-    scope: $scope
+    scope: $scope,
+    backdropClickToClose: false
   }).then(function(modal) {
     $scope.modal = modal;
     modal.show();
@@ -54,17 +55,13 @@ angular.module('starter.controllers', ['lunch.services'])
 })
 
 .controller('HistoryCtrl', function ($scope, lunchService) {
-  $scope.history = [];
+  $scope.history = lunchService.history;
 
   function refresh() {
     return lunchService.fetchHistory()
-      .then(function (result) {
-        $scope.history = result;
-        $scope.$broadcast('scroll.refreshComplete');
-      });
+      .then(function () { $scope.$broadcast('scroll.refreshComplete'); });
   }
   $scope.refresh = refresh;
-  refresh();
 })
 
 .controller('PlaylistCtrl', function($scope, $stateParams) {

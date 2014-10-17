@@ -10,6 +10,13 @@
     <ion-list>
       <ion-item ng-repeat="item in history">
         {{item.time}}
+        <span class="item-note" ng-show="{{item.guests}}">
+          {{item.guests}} gasten
+        </span>
+        <ion-option-button class="button-assertive"
+                           ng-click="history.splice($index, 1)">
+          Verwijder
+        </ion-option-button>
       </ion-item>
     </ion-list>
   </ion-content>

@@ -16,53 +16,42 @@ angular.module('lunch.services', ['ionic'])
 			$ionicLoading.hide();
 		}
 
-		service.login = function login(loginData) {
+		function delayed(descr, func, timeout) {
 			var defer = $q.defer();
 
-			start('inloggen');
+			start(descr);
 
 			$timeout(function () {
-				defer.resolve(service.token = {
-					secret: Math.floor(Math.random() * 1000000),
-					username: loginData.username
-				});
-				service.displayName = loginData.username;
 				stop();
-			}, 500);
+				defer.resolve(func());
+			}, timeout || 500);
 
 			return defer.promise;
+		}
+
+		service.login = function login(loginData) {
+			return delayed('inloggen', function () {
+				service.displayName = loginData.username;
+				return service.token = {
+					secret: Math.floor(Math.random() * 1000000),
+					username: loginData.username
+				};
+			})
 		};
 
 		service.toggleLunchen = function toggleLunchen() {
-			var defer = $q.defer();
-
-			start('registeren');
-
-			$timeout(function () {
-				defer.resolve(true);
-
+			return delayed('registreren', function () {
 				service.registered = !service.registered;
 				service.gasten = service.registered && service.gasten || null;
-    		stop();
-			}, 500);
-
-			return defer.promise;
+				return true;
+			});
 		};
 
 		service.registerGuests = function registerGuests(nr) {
-			var defer = $q.defer();
-
-			start('registeren gasten');
-
-			$timeout(function () {
-				defer.resolve(true);
-
+			return delayed('registreren gasten', function () {
 				service.gasten = nr || 'geen';
-
-    		stop();
-			}, 500);
-
-			return defer.promise;			
+				return true;
+			})
 		};
 
 		var historyAll = [
@@ -71,17 +60,18 @@ angular.module('lunch.services', ['ionic'])
 			{ time: 'maandag 20 oktober', guests: 0},
 			{ time: 'vrijdag 17 oktober', guests: 2},
 			{ time: 'donderdag 16 oktober', guests: 0},
-			{ time: 'woensdag 15 oktober', guests: 5},
-			{ time: 'dinsdag 14 oktober', guests: 0},
+			{ time: 'woensdag 15 oktober', guests: 5}
 		];
 
-		var history = [];
+		service.history = [
+			{ time: 'dinsdag 14 oktober', guests: 0}
+		];
 
 		service.fetchHistory = function fetchHistory() {
 			return $timeout(angular.noop, 1000)
 				.then(function () {
-					if (historyAll.length) history.unshift(historyAll.pop());
-					return history;
+					if (historyAll.length) service.history.unshift(historyAll.pop());
+					return service.history;
 				});
 		};
 

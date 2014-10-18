@@ -2,7 +2,9 @@ angular.module('starter.controllers', ['lunch.services'])
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout, lunchService, $rootScope) {
   // Form data for the login modal
-  $scope.loginData = {};
+  $scope.loginData = {
+    username: lunchService.rememberedUsername
+  };
 
   // Create the login modal that we will use later
   $ionicModal.fromTemplateUrl('templates/login.html', {
@@ -26,16 +28,10 @@ angular.module('starter.controllers', ['lunch.services'])
 
   // Perform the login action when the user submits the login form
   $scope.doLogin = function() {
-    console.log('Doing login', $scope.loginData);
+    console.log('Inloggen als: ', $scope.loginData.username);
 
     lunchService.login($scope.loginData)
-      .then(function (token) {
-        console.log('Ingelogd met token:', token)
-        $scope.closeLogin();
-      })
-      .catch(function (error) {
-        // TODO: Inloggen mislukt, toon een error ofzo.
-      });
+      .then($scope.closeLogin);
   };
 })
 

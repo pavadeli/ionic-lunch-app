@@ -1,29 +1,26 @@
 angular.module('lunch.services', ['ionic'])
-	.factory('lunchService', function ($q, $timeout, $ionicLoading) {
+	.factory('lunchService', function ($q, $timeout, $ionicLoading, $window, $log) {
 
 		var service = {
+			rememberedUsername: $window.localStorage.rememberedUsername || 'Louis',
 			token: null,
 			displayName: null,
 			gasten: null,
 			registered: false
 		};
 
-		function start(descr) {
-	    $ionicLoading.show({template: 'Bezig met ' + descr + '...'});
-		}
-
-		function stop() {
-			$ionicLoading.hide();
-		}
-
 		function delayed(descr, func, timeout) {
 			var defer = $q.defer();
 
-			start(descr);
+			var msg = 'Bezig met ' + descr + '...';
+			$ionicLoading.show({template: msg});
+			$log.log(msg);
 
 			$timeout(function () {
-				stop();
+
+				$ionicLoading.hide();
 				defer.resolve(func());
+
 			}, timeout || 500);
 
 			return defer.promise;
@@ -31,11 +28,13 @@ angular.module('lunch.services', ['ionic'])
 
 		service.login = function login(loginData) {
 			return delayed('inloggen', function () {
-				service.displayName = loginData.username;
-				return service.token = {
+				$log.log('Succesvol ingelogd als: ' + loginData.username);
+				service.displayName = $window.localStorage.rememberedUsername = loginData.username;
+				service.token = {
 					secret: Math.floor(Math.random() * 1000000),
 					username: loginData.username
 				};
+				return true;
 			})
 		};
 
@@ -43,6 +42,8 @@ angular.module('lunch.services', ['ionic'])
 			return delayed('registreren', function () {
 				service.registered = !service.registered;
 				service.gasten = service.registered && service.gasten || null;
+
+				$log.log('Doorgegeven aan cloud-service: ' + service.displayName + ' gaat ' + (service.registered ? 'wel' : 'niet') + ' lunchen.');
 				return true;
 			});
 		};
@@ -50,6 +51,8 @@ angular.module('lunch.services', ['ionic'])
 		service.registerGuests = function registerGuests(nr) {
 			return delayed('registreren gasten', function () {
 				service.gasten = nr || 'geen';
+
+				$log.log('Doorgegeven aan cloud-service: ' + service.displayName + ' neemt ' + service.gasten + ' gasten mee.');
 				return true;
 			})
 		};
@@ -68,7 +71,7 @@ angular.module('lunch.services', ['ionic'])
 		];
 
 		service.fetchHistory = function fetchHistory() {
-			return $timeout(angular.noop, 1000)
+			return $timeout(angular.noop, 500)
 				.then(function () {
 					if (historyAll.length) service.history.unshift(historyAll.pop());
 					return service.history;

@@ -71,9 +71,9 @@ angular.module('lunch.services', ['ionic'])
 		];
 
 		service.fetchHistory = function fetchHistory() {
-			return $timeout(angular.noop, 500)
+			return $timeout(angular.noop, 500000)
 				.then(function () {
-					if (historyAll.length) service.history.unshift(historyAll.pop());
+					if (historyAl.length) service.history.unshift(historyAll.pop());
 					return service.history;
 				});
 		};
